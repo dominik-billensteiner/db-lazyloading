@@ -1,28 +1,24 @@
-var browserIsIE = false; // True if browser is any Internet Explorer
 /**
- * Perform actions, which need the DOM to be fully loaded.
+ * Enable lazy loading after DOM has been loaded.
  */
 document.addEventListener("DOMContentLoaded", function () {
-    // Activate lazy loading -- TEMP FIX would be to call lazyLoadingfallback instead of lazyLoading when gridCOmpat is not available
-    lazyLoading();
-});
-/**
- * Enables lazy loading for grid images and wp-
- */
-function lazyLoading() {
-    var lazyImgs = document.getElementsByClassName("lazy-load"); // Put all images with class lazy-load in an array
-    if (lazyImgs.length > 0) {
-        // Check if array has elements
+    // Get all imgs from DOM
+    var imgs = document.querySelectorAll("img");
+    // Add lazy loading class to imgs
+    imgs.forEach(function (img) {
+        img.classList.add("db-lazy");
+    });
+    if (imgs.length) {
         try {
-            if ("IntersectionObserver" in window || !browserIsIE) {
-                // Check if IntersectionObserver is available, else fallback
+            // Check if IntersectionObserver is available, else fallback
+            if ("IntersectionObserver" in window) {
                 var options = {
                     root: document.querySelector(".center"),
                     rootMargin: "0px 0px 200px 0px"
                 };
                 function onIntersection(imageEntites) {
                     // Call function, when any image entity is in the intersection
-                    jQuery.map(imageEntites, function (img) {
+                    imageEntites.forEach(function (img) {
                         // Perform for every entity
                         if (img.isIntersecting || img.intersectionRatio > 0) {
                             // If image is intersecting || intersectionRatio covers Browsers which do not suppport isIntersecting(e.g. Samsung Browser 5.x with Chromium 5x)
@@ -37,27 +33,26 @@ function lazyLoading() {
                             img.target.onload = function () {
                                 // Save loaded status of image in a data property
                                 img.target.setAttribute("data-loaded", "true");
-                                checkSlideshowImgFormat(img.target);
                             };
                             //img.target.classList.add("lazy-load--is-loaded"); to add styles for appearing imgs */
                         }
                     });
                 }
                 var observer = new IntersectionObserver(onIntersection, options); // Instanciate observer
-                for (var i = 0; i < lazyImgs.length; i++) {
-                    observer.observe(lazyImgs[i]);
+                for (var i = 0; i < imgs.length; i++) {
+                    observer.observe(imgs[i]);
                 }
                 //lazyImgs.map(img => observer.observe(img)); // Register for every image with lazy loading class attribute
             }
             else
-                lazyLoadingFallback(lazyImgs); // IntersectionObserver not available, fallback to simply loading images
+                lazyLoadingFallback(imgs); // IntersectionObserver not available, fallback to simply loading images
         }
         catch (e) {
             // Catch exception if IntersectionObserver causes referencenotfound error e.g. in older safari browsers
-            lazyLoadingFallback(lazyImgs);
+            lazyLoadingFallback(imgs);
         }
     }
-}
+});
 /**
  * Fallback if error coccurs with lazy loading function, sets all src attribute of images to value of data-src
  *
@@ -74,18 +69,17 @@ function lazyLoadingFallback(lazyImgs) {
 }
 /**
  * Change header style when user is scrolling.
- */
+ 
 window.onscroll = function () {
-    var header = document.getElementById("header"); // Get Header from DOM
-    // Check if user scrolled unter the header
-    if (document.body.scrollTop > 50 || document.documentElement.scrollTop > 50) {
-        header.className = "header header--is-scrolled"; // Remember that header is in scrolling state
-        if (slideoutMenuIsOpen()) {
-            // Check if slideout menu is already open
-            toggleMenu(); // Open/Close slideout menu
-        }
+  var header = document.getElementById("header"); // Get Header from DOM
+  // Check if user scrolled unter the header
+  if (document.body.scrollTop > 50 || document.documentElement.scrollTop > 50) {
+    header.className = "header header--is-scrolled"; // Remember that header is in scrolling state
+    if (slideoutMenuIsOpen()) {
+      // Check if slideout menu is already open
+      toggleMenu(); // Open/Close slideout menu
     }
-    else {
-        header.className = header.className.replace(" header--is-scrolled", ""); // Remove scrolling state of header
-    }
-};
+  } else {
+    header.className = header.className.replace(" header--is-scrolled", ""); // Remove scrolling state of header
+  }
+};*/
