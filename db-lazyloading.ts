@@ -67,20 +67,3 @@ function lazyLoadingFallback(lazyImgs) {
     }
   }
 }
-
-/**
- * Change header style when user is scrolling.
- 
-window.onscroll = function () {
-  var header = document.getElementById("header"); // Get Header from DOM
-  // Check if user scrolled unter the header
-  if (document.body.scrollTop > 50 || document.documentElement.scrollTop > 50) {
-    header.className = "header header--is-scrolled"; // Remember that header is in scrolling state
-    if (slideoutMenuIsOpen()) {
-      // Check if slideout menu is already open
-      toggleMenu(); // Open/Close slideout menu
-    }
-  } else {
-    header.className = header.className.replace(" header--is-scrolled", ""); // Remove scrolling state of header
-  }
-};*/
