@@ -4,22 +4,16 @@
  */
 document.addEventListener("DOMContentLoaded", () => {
   // Get all imgs from DOM
-  let imgs: any = document.querySelectorAll("img");
-
-  // Add lazy loading class to imgs
-  imgs.forEach((img: any) => {
-    img.classList.add("db-lazy");
-  });
+  let imgs: any = document.querySelectorAll(".db-lazy");
 
   if (imgs.length) {
     try {
       // Check if IntersectionObserver is available, else fallback
       if ("IntersectionObserver" in window) {
+        console.log("Lazy IntersectinObserver in window");
         let options: any = {
           root: null,
-          rootMargin: "0px",
-          //root: document.querySelector(".center"), // Any container
-          //rootMargin: "0px 0px 200px 0px", // Defines margin for intersection, image is loaded 200px before images comes in the screen
+          rootMargin: "0px 0px 100px 0px", // Defines margin for intersection, image is loaded 200px before images comes in the screen
           treshhold: 0.01,
         };
         const onIntersection = (entries: any) => {
@@ -29,7 +23,7 @@ document.addEventListener("DOMContentLoaded", () => {
             if (entry.isIntersecting || entry.intersectionRatio > 0) {
               let img = entry.target;
               // Stop observing the intersecting image
-              observer.unobserve(img.target);
+              observer.unobserve(img);
 
               // Display image instead of loading icon
               loadImage(img);
@@ -45,6 +39,7 @@ document.addEventListener("DOMContentLoaded", () => {
           observer.observe(img);
         });
       } else {
+        console.log("Lazy Scrolling Fallback");
         let lazyloadThrottleTimeout: any;
 
         const lazyload = () => {
@@ -72,6 +67,8 @@ document.addEventListener("DOMContentLoaded", () => {
         window.addEventListener("orientationChange", lazyload);
       } // IntersectionObserver not available, fallback to simply loading images
     } catch (e) {
+      console.log("Lazy full fallback");
+
       // Catch exception if IntersectionObserver causes referencenotfound error e.g. in older safari browsers
       showAllImages(imgs);
     }
@@ -79,6 +76,7 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 function loadImage(img: any) {
+  console.log(`${img.dataset.src} is intersecting`);
   img.src = img.dataset.src;
   img.removeAttribute("data-src");
   if (img.dataset.srcset != null) {

@@ -5,20 +5,15 @@
  */
 document.addEventListener("DOMContentLoaded", function () {
     // Get all imgs from DOM
-    var imgs = document.querySelectorAll("img");
-    // Add lazy loading class to imgs
-    imgs.forEach(function (img) {
-        img.classList.add("db-lazy");
-    });
+    var imgs = document.querySelectorAll("db-lazy");
     if (imgs.length) {
         try {
             // Check if IntersectionObserver is available, else fallback
             if ("IntersectionObserver" in window) {
+                console.log("Lazy IntersectinObserver in window");
                 var options = {
                     root: null,
                     rootMargin: "0px",
-                    //root: document.querySelector(".center"), // Any container
-                    //rootMargin: "0px 0px 200px 0px", // Defines margin for intersection, image is loaded 200px before images comes in the screen
                     treshhold: 0.01
                 };
                 var onIntersection = function (entries) {
@@ -28,7 +23,7 @@ document.addEventListener("DOMContentLoaded", function () {
                         if (entry.isIntersecting || entry.intersectionRatio > 0) {
                             var img = entry.target;
                             // Stop observing the intersecting image
-                            observer_1.unobserve(img.target);
+                            observer_1.unobserve(img);
                             // Display image instead of loading icon
                             loadImage(img);
                         }
@@ -42,6 +37,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 });
             }
             else {
+                console.log("Lazy Scrolling Fallback");
                 var lazyloadThrottleTimeout_1;
                 var lazyload_1 = function () {
                     if (lazyloadThrottleTimeout_1) {
@@ -67,12 +63,14 @@ document.addEventListener("DOMContentLoaded", function () {
             } // IntersectionObserver not available, fallback to simply loading images
         }
         catch (e) {
+            console.log("Lazy full fallback");
             // Catch exception if IntersectionObserver causes referencenotfound error e.g. in older safari browsers
             showAllImages(imgs);
         }
     }
 });
 function loadImage(img) {
+    console.log(img.dataset.src + " is intersecting");
     img.src = img.dataset.src;
     img.removeAttribute("data-src");
     if (img.dataset.srcset != null) {
