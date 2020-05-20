@@ -21,26 +21,16 @@ document.addEventListener("DOMContentLoaded", function () {
                     //rootMargin: "0px 0px 200px 0px", // Defines margin for intersection, image is loaded 200px before images comes in the screen
                     treshhold: 0.01
                 };
-                var onIntersection = function (imageEntites) {
+                var onIntersection = function (entries) {
                     // Call function, when any image entity is in the intersection
-                    imageEntites.forEach(function (img) {
+                    entries.forEach(function (entry) {
                         // intersectionRatio covers Browsers which do not suppport isIntersecting
-                        if (img.isIntersecting || img.intersectionRatio > 0) {
+                        if (entry.isIntersecting || entry.intersectionRatio > 0) {
+                            var img = entry.target;
                             // Stop observing the intersecting image
                             observer_1.unobserve(img.target);
                             // Display image instead of loading icon
-                            img.target.src = img.target.dataset.src;
-                            img.target.removeAttribute("data-src");
-                            if (img.target.dataset.srcset != null) {
-                                img.target.srcset = img.target.dataset.srcset;
-                                img.target.removeAttribute("data-srcset");
-                            }
-                            // Set loaded status to true if image has completlety loaded
-                            img.target.onload = function () {
-                                img.target.setAttribute("data-loaded", "true");
-                                // Add styles for appearing imgs
-                                img.target.classList.add("lazy-load--is-loaded");
-                            };
+                            loadImage(img);
                         }
                     });
                 };
@@ -51,8 +41,30 @@ document.addEventListener("DOMContentLoaded", function () {
                     observer_1.observe(img);
                 });
             }
-            else
-                showAllImages(imgs); // IntersectionObserver not available, fallback to simply loading images
+            else {
+                var lazyloadThrottleTimeout_1;
+                var lazyload_1 = function () {
+                    if (lazyloadThrottleTimeout_1) {
+                        clearTimeout(lazyloadThrottleTimeout_1);
+                    }
+                    lazyloadThrottleTimeout_1 = setTimeout(function () {
+                        var scrollTop = window.pageYOffset;
+                        imgs.forEach(function (img) {
+                            if (img.offsetTop < window.innerHeight + scrollTop) {
+                                loadImage(img);
+                            }
+                        });
+                        if (imgs.length == 0) {
+                            document.removeEventListener("scroll", lazyload_1);
+                            window.removeEventListener("resize", lazyload_1);
+                            window.removeEventListener("orientationChange", lazyload_1);
+                        }
+                    }, 20);
+                };
+                document.addEventListener("scroll", lazyload_1);
+                window.addEventListener("resize", lazyload_1);
+                window.addEventListener("orientationChange", lazyload_1);
+            } // IntersectionObserver not available, fallback to simply loading images
         }
         catch (e) {
             // Catch exception if IntersectionObserver causes referencenotfound error e.g. in older safari browsers
@@ -60,6 +72,20 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     }
 });
+function loadImage(img) {
+    img.src = img.dataset.src;
+    img.removeAttribute("data-src");
+    if (img.dataset.srcset != null) {
+        img.srcset = img.dataset.srcset;
+        img.removeAttribute("data-srcset");
+    }
+    // Set loaded status to true if image has completlety loaded
+    img.onload = function () {
+        img.setAttribute("data-loaded", "true");
+        // Add styles for appearing imgs
+        img.classList.add("db-lazy--loaded");
+    };
+}
 /**
  * Shows all images by setting src attribute.
  *

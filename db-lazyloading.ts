@@ -22,28 +22,17 @@ document.addEventListener("DOMContentLoaded", () => {
           //rootMargin: "0px 0px 200px 0px", // Defines margin for intersection, image is loaded 200px before images comes in the screen
           treshhold: 0.01,
         };
-        const onIntersection = (imageEntites: any) => {
+        const onIntersection = (entries: any) => {
           // Call function, when any image entity is in the intersection
-          imageEntites.forEach((img: any) => {
+          entries.forEach((entry: any) => {
             // intersectionRatio covers Browsers which do not suppport isIntersecting
-            if (img.isIntersecting || img.intersectionRatio > 0) {
+            if (entry.isIntersecting || entry.intersectionRatio > 0) {
+              let img = entry.target;
               // Stop observing the intersecting image
               observer.unobserve(img.target);
 
               // Display image instead of loading icon
-              img.target.src = img.target.dataset.src;
-              img.target.removeAttribute("data-src");
-              if (img.target.dataset.srcset != null) {
-                img.target.srcset = img.target.dataset.srcset;
-                img.target.removeAttribute("data-srcset");
-              }
-
-              // Set loaded status to true if image has completlety loaded
-              img.target.onload = () => {
-                img.target.setAttribute("data-loaded", "true");
-                // Add styles for appearing imgs
-                img.target.classList.add("lazy-load--is-loaded");
-              };
+              loadImage(img);
             }
           });
         };
@@ -55,13 +44,54 @@ document.addEventListener("DOMContentLoaded", () => {
         imgs.forEach((img: any) => {
           observer.observe(img);
         });
-      } else showAllImages(imgs); // IntersectionObserver not available, fallback to simply loading images
+      } else {
+        let lazyloadThrottleTimeout: any;
+
+        const lazyload = () => {
+          if (lazyloadThrottleTimeout) {
+            clearTimeout(lazyloadThrottleTimeout);
+          }
+
+          lazyloadThrottleTimeout = setTimeout(() => {
+            var scrollTop = window.pageYOffset;
+            imgs.forEach(function (img: any) {
+              if (img.offsetTop < window.innerHeight + scrollTop) {
+                loadImage(img);
+              }
+            });
+            if (imgs.length == 0) {
+              document.removeEventListener("scroll", lazyload);
+              window.removeEventListener("resize", lazyload);
+              window.removeEventListener("orientationChange", lazyload);
+            }
+          }, 20);
+        };
+
+        document.addEventListener("scroll", lazyload);
+        window.addEventListener("resize", lazyload);
+        window.addEventListener("orientationChange", lazyload);
+      } // IntersectionObserver not available, fallback to simply loading images
     } catch (e) {
       // Catch exception if IntersectionObserver causes referencenotfound error e.g. in older safari browsers
       showAllImages(imgs);
     }
   }
 });
+
+function loadImage(img: any) {
+  img.src = img.dataset.src;
+  img.removeAttribute("data-src");
+  if (img.dataset.srcset != null) {
+    img.srcset = img.dataset.srcset;
+    img.removeAttribute("data-srcset");
+  }
+  // Set loaded status to true if image has completlety loaded
+  img.onload = () => {
+    img.setAttribute("data-loaded", "true");
+    // Add styles for appearing imgs
+    img.classList.add("db-lazy--loaded");
+  };
+}
 
 /**
  * Shows all images by setting src attribute.
