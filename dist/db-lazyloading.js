@@ -15,8 +15,11 @@ document.addEventListener("DOMContentLoaded", function () {
             // Check if IntersectionObserver is available, else fallback
             if ("IntersectionObserver" in window) {
                 var options = {
-                    root: document.querySelector(".center"),
-                    rootMargin: "0px 0px 200px 0px"
+                    root: null,
+                    rootMargin: "0px",
+                    //root: document.querySelector(".center"), // Any container
+                    //rootMargin: "0px 0px 200px 0px", // Defines margin for intersection, image is loaded 200px before images comes in the screen
+                    treshhold: 0.01
                 };
                 var onIntersection = function (imageEntites) {
                     // Call function, when any image entity is in the intersection
