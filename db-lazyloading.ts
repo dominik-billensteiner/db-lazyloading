@@ -40,32 +40,10 @@ document.addEventListener("DOMContentLoaded", () => {
         });
       } else {
         console.log("Lazy Scrolling Fallback");
-        let lazyloadThrottleTimeout: any;
 
-        const lazyload = () => {
-          if (lazyloadThrottleTimeout) {
-            clearTimeout(lazyloadThrottleTimeout);
-          }
-
-          lazyloadThrottleTimeout = setTimeout(() => {
-            let scrollTop = window.pageYOffset;
-            for (let i = 0; i <= imgs.length; i++) {
-              if (imgs[i].offsetTop < window.innerHeight + scrollTop) {
-                console.log(imgs[i].src);
-                loadImage(imgs[i]);
-              }
-            }
-            if (imgs.length == 0) {
-              document.removeEventListener("scroll", lazyload);
-              window.removeEventListener("resize", lazyload);
-              window.removeEventListener("orientationChange", lazyload);
-            }
-          }, 20);
-        };
-
-        document.addEventListener("scroll", lazyload);
-        window.addEventListener("resize", lazyload);
-        window.addEventListener("orientationChange", lazyload);
+        document.addEventListener("scroll", lazyloadAlternative);
+        window.addEventListener("resize", lazyloadAlternative);
+        window.addEventListener("orientationChange", lazyloadAlternative);
       } // IntersectionObserver not available, fallback to simply loading images
     } catch (e) {
       console.log("Lazy full fallback");
@@ -75,6 +53,29 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 });
+
+function lazyloadAlternative() {
+  let lazyloadThrottleTimeout: any;
+  let imgs: any = document.querySelectorAll(".db-lazy");
+  if (lazyloadThrottleTimeout) {
+    clearTimeout(lazyloadThrottleTimeout);
+  }
+
+  lazyloadThrottleTimeout = setTimeout(() => {
+    let scrollTop = window.pageYOffset;
+    for (let i = 0; i <= imgs.length; i++) {
+      if (imgs[i].offsetTop < window.innerHeight + scrollTop) {
+        console.log(imgs[i].src);
+        loadImage(imgs[i]);
+      }
+    }
+    if (imgs.length == 0) {
+      document.removeEventListener("scroll", lazyloadAlternative);
+      window.removeEventListener("resize", lazyloadAlternative);
+      window.removeEventListener("orientationChange", lazyloadAlternative);
+    }
+  }, 20);
+}
 
 function loadImage(img: any) {
   console.log(`${img.dataset.src} is intersecting`);
