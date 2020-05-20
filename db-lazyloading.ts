@@ -48,12 +48,13 @@ document.addEventListener("DOMContentLoaded", () => {
           }
 
           lazyloadThrottleTimeout = setTimeout(() => {
-            var scrollTop = window.pageYOffset;
-            imgs.forEach(function (img: any) {
-              if (img.offsetTop < window.innerHeight + scrollTop) {
-                loadImage(img);
+            let scrollTop = window.pageYOffset;
+            for (let i = 0; i <= imgs.length; i++) {
+              if (imgs[i].offsetTop < window.innerHeight + scrollTop) {
+                console.log(imgs[i].src);
+                loadImage(imgs[i]);
               }
-            });
+            }
             if (imgs.length == 0) {
               document.removeEventListener("scroll", lazyload);
               window.removeEventListener("resize", lazyload);
@@ -98,10 +99,10 @@ function loadImage(img: any) {
  */
 function showAllImages(imgs: any) {
   // Go through all grid image
+  console.log("Lazy show all images");
   if (imgs) {
-    imgs.forEach((img: any) => {
-      // Set attribute src to value of data-src
-      img.setAttribute("src", img.getAttribute("data-src"));
-    });
+    for (let i = 0; i <= imgs.length; i++) {
+      imgs[i].setAttribute("src", imgs[i].getAttribute("data-src"));
+    }
   }
 }
