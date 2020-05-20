@@ -1,5 +1,6 @@
 /**
  * Enable lazy loading after DOM has been loaded.
+ * URLs must be set as data-src attribute on images.
  */
 document.addEventListener("DOMContentLoaded", () => {
   // Get all imgs from DOM
@@ -45,10 +46,10 @@ document.addEventListener("DOMContentLoaded", () => {
         };
 
         // Instanciate observer
-        let observer = new IntersectionObserver(onIntersection, options);
+        let observer: any = new IntersectionObserver(onIntersection, options);
 
         // Register IntersectionObserver on images
-        imgs.forEach((img) => {
+        imgs.forEach((img: any) => {
           observer.observe(img);
         });
       } else showAllImages(imgs); // IntersectionObserver not available, fallback to simply loading images
@@ -64,10 +65,10 @@ document.addEventListener("DOMContentLoaded", () => {
  *
  * @param  {any} imgs - NodeList of all images, which are loading lazy.
  */
-function showAllImages(imgs) {
+function showAllImages(imgs: any) {
   // Go through all grid image
   if (imgs) {
-    imgs.forEach((img) => {
+    imgs.forEach((img: any) => {
       // Set attribute src to value of data-src
       img.setAttribute("src", img.getAttribute("data-src"));
     });

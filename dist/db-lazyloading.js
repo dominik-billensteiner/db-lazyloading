@@ -1,5 +1,7 @@
+"use strict";
 /**
  * Enable lazy loading after DOM has been loaded.
+ * URLs must be set as data-src attribute on images.
  */
 document.addEventListener("DOMContentLoaded", function () {
     // Get all imgs from DOM
