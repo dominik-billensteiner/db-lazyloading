@@ -1,3 +1,6 @@
+// Set console log debuging to true/false
+const lazyDebuging: boolean = false;
+
 /**
  * Enable lazy loading after DOM has been loaded.
  * URLs must be set as data-src attribute on images.
@@ -10,12 +13,13 @@ document.addEventListener("DOMContentLoaded", () => {
     try {
       // Check if IntersectionObserver is available, else fallback
       if ("IntersectionObserver" in window) {
-        console.log("Lazy IntersectinObserver in window");
-        let options: any = {
-          root: null,
-          rootMargin: "0px 0px 100px 0px", // Defines margin for intersection, image is loaded 200px before images comes in the screen
-          treshhold: 0.01,
-        };
+        // Debugging
+        if (lazyDebuging === true)
+          console.log(
+            "%c LazyLoading: IntersectinObserver in window",
+            "color: lightblue; font-weight: bold;"
+          );
+
         const onIntersection = (entries: any) => {
           // Call function, when any image entity is in the intersection
           entries.forEach((entry: any) => {
@@ -31,6 +35,13 @@ document.addEventListener("DOMContentLoaded", () => {
           });
         };
 
+        // Prepare observer options
+        let options: any = {
+          root: null,
+          rootMargin: "0px 0px 100px 0px", // Defines margin for intersection, image is loaded 200px before images comes in the screen
+          treshhold: 0.01,
+        };
+
         // Instanciate observer
         let observer: any = new IntersectionObserver(onIntersection, options);
 
@@ -39,14 +50,27 @@ document.addEventListener("DOMContentLoaded", () => {
           observer.observe(img);
         });
       } else {
-        console.log("Lazy Scrolling Fallback");
+        // Debugging
+        if (lazyDebuging === true)
+          console.log(
+            "%c LazyLoading: Scrolling Alternative",
+            "color: lightblue; font-weight: bold;"
+          );
 
-        document.addEventListener("scroll", lazyloadAlternative);
+        showAllImages(imgs);
+        /*document.addEventListener("scroll", lazyloadAlternative);
         window.addEventListener("resize", lazyloadAlternative);
-        window.addEventListener("orientationChange", lazyloadAlternative);
-      } // IntersectionObserver not available, fallback to simply loading images
+        window.addEventListener("orientationChange", lazyloadAlternative);*/
+      }
     } catch (e) {
-      console.log("Lazy full fallback");
+      // IntersectionObserver not available, fallback to simply loading images
+
+      // Debugging
+      if (lazyDebuging === true)
+        console.log(
+          "%c LazyLoading: Fallback",
+          "color: lightblue; font-weight: bold;"
+        );
 
       // Catch exception if IntersectionObserver causes referencenotfound error e.g. in older safari browsers
       showAllImages(imgs);
@@ -57,6 +81,7 @@ document.addEventListener("DOMContentLoaded", () => {
 function lazyloadAlternative() {
   let lazyloadThrottleTimeout: any;
   let imgs: any = document.querySelectorAll(".db-lazy");
+  console.log("alternative: " + imgs);
   if (lazyloadThrottleTimeout) {
     clearTimeout(lazyloadThrottleTimeout);
   }
@@ -85,12 +110,14 @@ function loadImage(img: any) {
     img.srcset = img.dataset.srcset;
     img.removeAttribute("data-srcset");
   }
+
+  /*
   // Set loaded status to true if image has completlety loaded
   img.onload = () => {
     img.setAttribute("data-loaded", "true");
     // Add styles for appearing imgs
     img.classList.add("db-lazy--loaded");
-  };
+  };*/
 }
 
 /**
@@ -102,7 +129,7 @@ function showAllImages(imgs: any) {
   // Go through all grid image
   console.log("Lazy show all images");
   if (imgs) {
-    for (let i = 0; i <= imgs.length; i++) {
+    for (let i = 0; i < imgs.length; i++) {
       imgs[i].setAttribute("src", imgs[i].getAttribute("data-src"));
     }
   }
