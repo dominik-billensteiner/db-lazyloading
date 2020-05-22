@@ -1,21 +1,20 @@
 "use strict";
+// Set console log debuging to true/false
+var lazyDebuging = false;
 /**
  * Enable lazy loading after DOM has been loaded.
  * URLs must be set as data-src attribute on images.
  */
 document.addEventListener("DOMContentLoaded", function () {
     // Get all imgs from DOM
-    var imgs = document.querySelectorAll("db-lazy");
+    var imgs = document.querySelectorAll(".db-lazy");
     if (imgs.length) {
         try {
             // Check if IntersectionObserver is available, else fallback
             if ("IntersectionObserver" in window) {
-                console.log("Lazy IntersectinObserver in window");
-                var options = {
-                    root: null,
-                    rootMargin: "0px",
-                    treshhold: 0.01
-                };
+                // Debugging
+                if (lazyDebuging === true)
+                    console.log("%c LazyLoading: IntersectinObserver in window", "color: lightblue; font-weight: bold;");
                 var onIntersection = function (entries) {
                     // Call function, when any image entity is in the intersection
                     entries.forEach(function (entry) {
@@ -29,6 +28,12 @@ document.addEventListener("DOMContentLoaded", function () {
                         }
                     });
                 };
+                // Prepare observer options
+                var options = {
+                    root: null,
+                    rootMargin: "0px 0px 100px 0px",
+                    treshhold: 0.01,
+                };
                 // Instanciate observer
                 var observer_1 = new IntersectionObserver(onIntersection, options);
                 // Register IntersectionObserver on images
@@ -37,38 +42,47 @@ document.addEventListener("DOMContentLoaded", function () {
                 });
             }
             else {
-                console.log("Lazy Scrolling Fallback");
-                var lazyloadThrottleTimeout_1;
-                var lazyload_1 = function () {
-                    if (lazyloadThrottleTimeout_1) {
-                        clearTimeout(lazyloadThrottleTimeout_1);
-                    }
-                    lazyloadThrottleTimeout_1 = setTimeout(function () {
-                        var scrollTop = window.pageYOffset;
-                        imgs.forEach(function (img) {
-                            if (img.offsetTop < window.innerHeight + scrollTop) {
-                                loadImage(img);
-                            }
-                        });
-                        if (imgs.length == 0) {
-                            document.removeEventListener("scroll", lazyload_1);
-                            window.removeEventListener("resize", lazyload_1);
-                            window.removeEventListener("orientationChange", lazyload_1);
-                        }
-                    }, 20);
-                };
-                document.addEventListener("scroll", lazyload_1);
-                window.addEventListener("resize", lazyload_1);
-                window.addEventListener("orientationChange", lazyload_1);
-            } // IntersectionObserver not available, fallback to simply loading images
+                // Debugging
+                if (lazyDebuging === true)
+                    console.log("%c LazyLoading: Scrolling Alternative", "color: lightblue; font-weight: bold;");
+                showAllImages(imgs);
+                /*document.addEventListener("scroll", lazyloadAlternative);
+                window.addEventListener("resize", lazyloadAlternative);
+                window.addEventListener("orientationChange", lazyloadAlternative);*/
+            }
         }
         catch (e) {
-            console.log("Lazy full fallback");
+            // IntersectionObserver not available, fallback to simply loading images
+            // Debugging
+            if (lazyDebuging === true)
+                console.log("%c LazyLoading: Fallback", "color: lightblue; font-weight: bold;");
             // Catch exception if IntersectionObserver causes referencenotfound error e.g. in older safari browsers
             showAllImages(imgs);
         }
     }
 });
+function lazyloadAlternative() {
+    var lazyloadThrottleTimeout;
+    var imgs = document.querySelectorAll(".db-lazy");
+    console.log("alternative: " + imgs);
+    if (lazyloadThrottleTimeout) {
+        clearTimeout(lazyloadThrottleTimeout);
+    }
+    lazyloadThrottleTimeout = setTimeout(function () {
+        var scrollTop = window.pageYOffset;
+        for (var i = 0; i <= imgs.length; i++) {
+            if (imgs[i].offsetTop < window.innerHeight + scrollTop) {
+                console.log(imgs[i].src);
+                loadImage(imgs[i]);
+            }
+        }
+        if (imgs.length == 0) {
+            document.removeEventListener("scroll", lazyloadAlternative);
+            window.removeEventListener("resize", lazyloadAlternative);
+            window.removeEventListener("orientationChange", lazyloadAlternative);
+        }
+    }, 20);
+}
 function loadImage(img) {
     console.log(img.dataset.src + " is intersecting");
     img.src = img.dataset.src;
@@ -77,12 +91,13 @@ function loadImage(img) {
         img.srcset = img.dataset.srcset;
         img.removeAttribute("data-srcset");
     }
+    /*
     // Set loaded status to true if image has completlety loaded
-    img.onload = function () {
-        img.setAttribute("data-loaded", "true");
-        // Add styles for appearing imgs
-        img.classList.add("db-lazy--loaded");
-    };
+    img.onload = () => {
+      img.setAttribute("data-loaded", "true");
+      // Add styles for appearing imgs
+      img.classList.add("db-lazy--loaded");
+    };*/
 }
 /**
  * Shows all images by setting src attribute.
@@ -91,10 +106,10 @@ function loadImage(img) {
  */
 function showAllImages(imgs) {
     // Go through all grid image
+    console.log("Lazy show all images");
     if (imgs) {
-        imgs.forEach(function (img) {
-            // Set attribute src to value of data-src
-            img.setAttribute("src", img.getAttribute("data-src"));
-        });
+        for (var i = 0; i < imgs.length; i++) {
+            imgs[i].setAttribute("src", imgs[i].getAttribute("data-src"));
+        }
     }
 }
