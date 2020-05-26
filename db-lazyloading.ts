@@ -1,5 +1,5 @@
 // Set console log debuging to true/false
-const lazyDebuging: boolean = false;
+const lazyDebuging: boolean = true;
 
 /**
  * Enable lazy loading after DOM has been loaded.
@@ -14,41 +14,7 @@ document.addEventListener("DOMContentLoaded", () => {
       // Check if IntersectionObserver is available, else fallback
       if ("IntersectionObserver" in window) {
         // Debugging
-        if (lazyDebuging === true)
-          console.log(
-            "%c LazyLoading: IntersectinObserver in window",
-            "color: lightblue; font-weight: bold;"
-          );
-
-        const onIntersection = (entries: any) => {
-          // Call function, when any image entity is in the intersection
-          entries.forEach((entry: any) => {
-            // intersectionRatio covers Browsers which do not suppport isIntersecting
-            if (entry.isIntersecting || entry.intersectionRatio > 0) {
-              let img = entry.target;
-              // Stop observing the intersecting image
-              observer.unobserve(img);
-
-              // Display image instead of loading icon
-              loadImage(img);
-            }
-          });
-        };
-
-        // Prepare observer options
-        let options: any = {
-          root: null,
-          rootMargin: "0px 0px 100px 0px", // Defines margin for intersection, image is loaded 200px before images comes in the screen
-          treshhold: 0.01,
-        };
-
-        // Instanciate observer
-        let observer: any = new IntersectionObserver(onIntersection, options);
-
-        // Register IntersectionObserver on images
-        imgs.forEach((img: any) => {
-          observer.observe(img);
-        });
+        loadingWithEvents(imgs);
       } else {
         // Debugging
         if (lazyDebuging === true)
@@ -78,9 +44,47 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 });
 
-function lazyloadAlternative() {
+function loadingWithObserver(imgs: any) {
+  if (lazyDebuging === true)
+    console.log(
+      "%c LazyLoading: IntersectinObserver in window",
+      "color: lightblue; font-weight: bold;"
+    );
+
+  const onIntersection = (entries: any) => {
+    // Call function, when any image entity is in the intersection
+    entries.forEach((entry: any) => {
+      // intersectionRatio covers Browsers which do not suppport isIntersecting
+      if (entry.isIntersecting || entry.intersectionRatio > 0) {
+        let img = entry.target;
+        // Stop observing the intersecting image
+        observer.unobserve(img);
+
+        // Display image instead of loading icon
+        loadImage(img);
+      }
+    });
+  };
+
+  // Prepare observer options
+  let options: any = {
+    root: null,
+    rootMargin: "0px 0px 500px 0px", // Defines margin for intersection, image is loaded 200px before images comes in the screen
+    treshhold: 0.01,
+  };
+
+  // Instanciate observer
+  let observer: any = new IntersectionObserver(onIntersection, options);
+
+  // Register IntersectionObserver on images
+  imgs.forEach((img: any) => {
+    observer.observe(img);
+  });
+}
+
+function loadingWithEvents(imgs: any) {
   let lazyloadThrottleTimeout: any;
-  let imgs: any = document.querySelectorAll(".db-lazy");
+  //let imgs: any = document.querySelectorAll(".db-lazy");
   console.log("alternative: " + imgs);
   if (lazyloadThrottleTimeout) {
     clearTimeout(lazyloadThrottleTimeout);
@@ -95,9 +99,9 @@ function lazyloadAlternative() {
       }
     }
     if (imgs.length == 0) {
-      document.removeEventListener("scroll", lazyloadAlternative);
-      window.removeEventListener("resize", lazyloadAlternative);
-      window.removeEventListener("orientationChange", lazyloadAlternative);
+      document.removeEventListener("scroll", loadingWithEvents);
+      window.removeEventListener("resize", loadingWithEvents);
+      window.removeEventListener("orientationChange", loadingWithEvents);
     }
   }, 20);
 }

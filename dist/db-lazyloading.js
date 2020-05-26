@@ -1,6 +1,6 @@
 "use strict";
 // Set console log debuging to true/false
-var lazyDebuging = false;
+var lazyDebuging = true;
 /**
  * Enable lazy loading after DOM has been loaded.
  * URLs must be set as data-src attribute on images.
@@ -13,33 +13,7 @@ document.addEventListener("DOMContentLoaded", function () {
             // Check if IntersectionObserver is available, else fallback
             if ("IntersectionObserver" in window) {
                 // Debugging
-                if (lazyDebuging === true)
-                    console.log("%c LazyLoading: IntersectinObserver in window", "color: lightblue; font-weight: bold;");
-                var onIntersection = function (entries) {
-                    // Call function, when any image entity is in the intersection
-                    entries.forEach(function (entry) {
-                        // intersectionRatio covers Browsers which do not suppport isIntersecting
-                        if (entry.isIntersecting || entry.intersectionRatio > 0) {
-                            var img = entry.target;
-                            // Stop observing the intersecting image
-                            observer_1.unobserve(img);
-                            // Display image instead of loading icon
-                            loadImage(img);
-                        }
-                    });
-                };
-                // Prepare observer options
-                var options = {
-                    root: null,
-                    rootMargin: "0px 0px 100px 0px",
-                    treshhold: 0.01,
-                };
-                // Instanciate observer
-                var observer_1 = new IntersectionObserver(onIntersection, options);
-                // Register IntersectionObserver on images
-                imgs.forEach(function (img) {
-                    observer_1.observe(img);
-                });
+                loadingWithEvents(imgs);
             }
             else {
                 // Debugging
@@ -61,9 +35,38 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     }
 });
-function lazyloadAlternative() {
+function loadingWithObserver(imgs) {
+    if (lazyDebuging === true)
+        console.log("%c LazyLoading: IntersectinObserver in window", "color: lightblue; font-weight: bold;");
+    var onIntersection = function (entries) {
+        // Call function, when any image entity is in the intersection
+        entries.forEach(function (entry) {
+            // intersectionRatio covers Browsers which do not suppport isIntersecting
+            if (entry.isIntersecting || entry.intersectionRatio > 0) {
+                var img = entry.target;
+                // Stop observing the intersecting image
+                observer.unobserve(img);
+                // Display image instead of loading icon
+                loadImage(img);
+            }
+        });
+    };
+    // Prepare observer options
+    var options = {
+        root: null,
+        rootMargin: "0px 0px 500px 0px",
+        treshhold: 0.01,
+    };
+    // Instanciate observer
+    var observer = new IntersectionObserver(onIntersection, options);
+    // Register IntersectionObserver on images
+    imgs.forEach(function (img) {
+        observer.observe(img);
+    });
+}
+function loadingWithEvents(imgs) {
     var lazyloadThrottleTimeout;
-    var imgs = document.querySelectorAll(".db-lazy");
+    //let imgs: any = document.querySelectorAll(".db-lazy");
     console.log("alternative: " + imgs);
     if (lazyloadThrottleTimeout) {
         clearTimeout(lazyloadThrottleTimeout);
@@ -77,9 +80,9 @@ function lazyloadAlternative() {
             }
         }
         if (imgs.length == 0) {
-            document.removeEventListener("scroll", lazyloadAlternative);
-            window.removeEventListener("resize", lazyloadAlternative);
-            window.removeEventListener("orientationChange", lazyloadAlternative);
+            document.removeEventListener("scroll", loadingWithEvents);
+            window.removeEventListener("resize", loadingWithEvents);
+            window.removeEventListener("orientationChange", loadingWithEvents);
         }
     }, 20);
 }
