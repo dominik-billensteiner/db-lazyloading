@@ -14,7 +14,7 @@ document.addEventListener("DOMContentLoaded", () => {
       // Check if IntersectionObserver is available, else fallback
       if ("IntersectionObserver" in window) {
         // Debugging
-        loadingWithEvents(imgs);
+        loadingWithObserver(imgs);
       } else {
         // Debugging
         if (lazyDebuging === true)
@@ -44,6 +44,10 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 });
 
+/**
+ *
+ * @param imgs Images
+ */
 function loadingWithObserver(imgs: any) {
   if (lazyDebuging === true)
     console.log(
@@ -106,17 +110,30 @@ function loadingWithEvents(imgs: any) {
   }, 20);
 }
 
+/**
+ * Displays a lazy loaded image.
+ *
+ * @param {any} img - Image.
+ */
 function loadImage(img: any) {
-  console.log(`${img.dataset.src} is intersecting`);
+  //console.log(`${img.dataset.src} is intersecting`);
+
+  // Remove style used for placeholder
+  img.removeAttribute("style");
+
+  // Display image by setting src attribute
   img.src = img.dataset.src;
+
+  // Cleanup
   img.removeAttribute("data-src");
+
   if (img.dataset.srcset != null) {
+    // Set srcset for responsive images if available
     img.srcset = img.dataset.srcset;
     img.removeAttribute("data-srcset");
   }
 
-  /*
-  // Set loaded status to true if image has completlety loaded
+  /* Set loaded status to true if image has completlety loaded
   img.onload = () => {
     img.setAttribute("data-loaded", "true");
     // Add styles for appearing imgs
