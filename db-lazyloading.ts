@@ -118,9 +118,6 @@ function loadingWithEvents(imgs: any) {
 function loadImage(img: any) {
   //console.log(`${img.dataset.src} is intersecting`);
 
-  // Remove style used for placeholder
-  img.removeAttribute("style");
-
   // Display image by setting src attribute
   img.src = img.dataset.src;
 
@@ -133,12 +130,24 @@ function loadImage(img: any) {
     img.removeAttribute("data-srcset");
   }
 
-  /* Set loaded status to true if image has completlety loaded
   img.onload = () => {
+    // Remove style used for placeholder
+    img.style.removeProperty("width");
+    img.style.removeProperty("height");
+
+    // Enable lightbox overlay when image is loaded
+    let lightboxOverlay: any = document.getElementById(
+      `lightbox-overlay-${img.getAttribute("data-id")}`
+    );
+    lightboxOverlay.className =
+      "lightbox__parent-overlay lightbox__parent-overlay--active";
+
+    //img.style.removeProperty("object-fit");
+    /* Set loaded status to true if image has completlety loaded
     img.setAttribute("data-loaded", "true");
     // Add styles for appearing imgs
-    img.classList.add("db-lazy--loaded");
-  };*/
+    img.classList.add("db-lazy--loaded");*/
+  };
 }
 
 /**
