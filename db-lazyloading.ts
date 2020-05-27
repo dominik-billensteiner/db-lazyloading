@@ -142,6 +142,13 @@ function loadImage(img: any) {
     lightboxOverlay.className =
       "lightbox__parent-overlay lightbox__parent-overlay--active";
 
+    // Remove styles used for placeholder lightbox image
+    let lightboxImg: any = document.getElementById(
+      `lightbox-img-${img.getAttribute("data-id")}`
+    );
+    lightboxImg.style.removeProperty("width");
+    lightboxImg.style.removeProperty("height");
+
     //img.style.removeProperty("object-fit");
     /* Set loaded status to true if image has completlety loaded
     img.setAttribute("data-loaded", "true");
