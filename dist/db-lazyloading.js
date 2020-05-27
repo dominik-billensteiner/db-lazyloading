@@ -97,8 +97,6 @@ function loadingWithEvents(imgs) {
  */
 function loadImage(img) {
     //console.log(`${img.dataset.src} is intersecting`);
-    // Remove style used for placeholder
-    img.removeAttribute("style");
     // Display image by setting src attribute
     img.src = img.dataset.src;
     // Cleanup
@@ -108,12 +106,27 @@ function loadImage(img) {
         img.srcset = img.dataset.srcset;
         img.removeAttribute("data-srcset");
     }
-    /* Set loaded status to true if image has completlety loaded
-    img.onload = () => {
-      img.setAttribute("data-loaded", "true");
-      // Add styles for appearing imgs
-      img.classList.add("db-lazy--loaded");
-    };*/
+    img.onload = function () {
+        onImageLoad(img);
+        //img.style.removeProperty("object-fit");
+        /* Set loaded status to true if image has completlety loaded
+        img.setAttribute("data-loaded", "true");
+        // Add styles for appearing imgs
+        img.classList.add("db-lazy--loaded");*/
+    };
+}
+function onImageLoad(img) {
+    // Remove style used for placeholder
+    img.style.removeProperty("width");
+    img.style.removeProperty("height");
+    // Enable lightbox overlay when image is loaded
+    var lightboxOverlay = document.getElementById("lightbox-overlay-" + img.getAttribute("data-id"));
+    lightboxOverlay.className =
+        "lightbox__parent-overlay lightbox__parent-overlay--active";
+    // Remove styles used for placeholder lightbox image
+    var lightboxImg = document.getElementById("lightbox-img-" + img.getAttribute("data-id"));
+    lightboxImg.style.removeProperty("width");
+    lightboxImg.style.removeProperty("height");
 }
 /**
  * Shows all images by setting src attribute.
@@ -121,11 +134,17 @@ function loadImage(img) {
  * @param  {any} imgs - NodeList of all images, which are loading lazy.
  */
 function showAllImages(imgs) {
-    // Go through all grid image
+    console.log(imgs.length);
     console.log("Lazy show all images");
     if (imgs) {
-        for (var i = 0; i < imgs.length; i++) {
+        var _loop_1 = function (i) {
             imgs[i].setAttribute("src", imgs[i].getAttribute("data-src"));
+            imgs[i].onload = function () {
+                onImageLoad(imgs[i]);
+            };
+        };
+        for (var i = 0; i < imgs.length; i++) {
+            _loop_1(i);
         }
     }
 }

@@ -131,23 +131,7 @@ function loadImage(img: any) {
   }
 
   img.onload = () => {
-    // Remove style used for placeholder
-    img.style.removeProperty("width");
-    img.style.removeProperty("height");
-
-    // Enable lightbox overlay when image is loaded
-    let lightboxOverlay: any = document.getElementById(
-      `lightbox-overlay-${img.getAttribute("data-id")}`
-    );
-    lightboxOverlay.className =
-      "lightbox__parent-overlay lightbox__parent-overlay--active";
-
-    // Remove styles used for placeholder lightbox image
-    let lightboxImg: any = document.getElementById(
-      `lightbox-img-${img.getAttribute("data-id")}`
-    );
-    lightboxImg.style.removeProperty("width");
-    lightboxImg.style.removeProperty("height");
+    onImageLoad(img);
 
     //img.style.removeProperty("object-fit");
     /* Set loaded status to true if image has completlety loaded
@@ -157,17 +141,40 @@ function loadImage(img: any) {
   };
 }
 
+function onImageLoad(img: any) {
+  // Remove style used for placeholder
+  img.style.removeProperty("width");
+  img.style.removeProperty("height");
+
+  // Enable lightbox overlay when image is loaded
+  let lightboxOverlay: any = document.getElementById(
+    `lightbox-overlay-${img.getAttribute("data-id")}`
+  );
+  lightboxOverlay.className =
+    "lightbox__parent-overlay lightbox__parent-overlay--active";
+
+  // Remove styles used for placeholder lightbox image
+  let lightboxImg: any = document.getElementById(
+    `lightbox-img-${img.getAttribute("data-id")}`
+  );
+  lightboxImg.style.removeProperty("width");
+  lightboxImg.style.removeProperty("height");
+}
+
 /**
  * Shows all images by setting src attribute.
  *
  * @param  {any} imgs - NodeList of all images, which are loading lazy.
  */
 function showAllImages(imgs: any) {
-  // Go through all grid image
+  console.log(imgs.length);
   console.log("Lazy show all images");
   if (imgs) {
     for (let i = 0; i < imgs.length; i++) {
       imgs[i].setAttribute("src", imgs[i].getAttribute("data-src"));
+      imgs[i].onload = () => {
+        onImageLoad(imgs[i]);
+      };
     }
   }
 }
